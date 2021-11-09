@@ -1,0 +1,30 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: ServiceEntry
+metadata:
+  name: memcached-test
+  namespace: test
+spec:
+  hosts:
+  - test.abcde.cfg.apn2.cache.amazonaws.com
+  location: MESH_EXTERNAL
+  ports:
+  - number: 11211
+    name: tcp
+    protocol: TCP
+  resolution: DNS
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: test-dr
+  namespace: test
+spec:
+  host: test.abcde.cfg.apn2.cache.amazonaws.com
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 300
+        connectTimeout: 3000ms
+        tcpKeepalive:
+          time: 7200s
+          interval: 75s

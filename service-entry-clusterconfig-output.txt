@@ -1,0 +1,77 @@
+$ prod ./istioctl pc clusters test-6945d6d54b-qmnqs.test --port 11211 --direction outbound -o json
+
+[
+    {
+        "name": "outbound|11211||test.abcde.cfg.apn2.cache.amazonaws.com",
+        "type": "STRICT_DNS",
+        "connectTimeout": "3s",
+        "loadAssignment": {
+            "clusterName": "outbound|11211||test.abcde.cfg.apn2.cache.amazonaws.com",
+            "endpoints": [
+                {
+                    "locality": {},
+                    "lbEndpoints": [
+                        {
+                            "endpoint": {
+                                "address": {
+                                    "socketAddress": {
+                                        "address": "test.abcde.cfg.apn2.cache.amazonaws.com",
+                                        "portValue": 11211
+                                    }
+                                }
+                            },
+                            "loadBalancingWeight": 1
+                        }
+                    ],
+                    "loadBalancingWeight": 1
+                }
+            ]
+        },
+        "circuitBreakers": {
+            "thresholds": [
+                {
+                    "maxConnections": 300,
+                    "maxPendingRequests": 4294967295,
+                    "maxRequests": 4294967295,
+                    "maxRetries": 4294967295
+                }
+            ]
+        },
+        "dnsRefreshRate": "5s",
+        "respectDnsTtl": true,
+        "dnsLookupFamily": "V4_ONLY",
+        "metadata": {
+            "filterMetadata": {
+                "istio": {
+                    "config": "/apis/networking.istio.io/v1alpha3/namespaces/test/destination-rule/test-memcached-dr",
+                    "default_original_port": 11211,
+                    "services": [
+                        {
+                            "host": "test.abcde.cfg.apn2.cache.amazonaws.com",
+                            "name": "test.abcde.cfg.apn2.cache.amazonaws.com",
+                            "namespace": "test"
+                        }
+                    ]
+                }
+            }
+        },
+        "upstreamConnectionOptions": {
+            "tcpKeepalive": {
+                "keepaliveTime": 7200,
+                "keepaliveInterval": 75
+            }
+        },
+        "filters": [
+            {
+                "name": "istio.metadata_exchange",
+                "typedConfig": {
+                    "@type": "type.googleapis.com/udpa.type.v1.TypedStruct",
+                    "typeUrl": "type.googleapis.com/envoy.tcp.metadataexchange.config.MetadataExchange",
+                    "value": {
+                        "protocol": "istio-peer-exchange"
+                    }
+                }
+            }
+        ]
+    }
+]
