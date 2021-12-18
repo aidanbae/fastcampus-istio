@@ -1,0 +1,12 @@
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: "example-peer-policy"
+  namespace: "default"
+spec:
+  selector:
+    matchLabels:
+      app: ratings
+  mtls:
+    mode: STRICT
+
