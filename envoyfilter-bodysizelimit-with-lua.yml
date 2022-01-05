@@ -1,0 +1,41 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: filter-buffersize-limit
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value: # lua filter specification
+          name: envoy.lua
+          typed_config:
+              "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+              inlineCode: |
+                function envoy_on_request(request_handle)
+                  request_handle:logInfo("Aidan Path: "..request_handle:headers():get(":path"))
+                  body_size = request_handle:body():length()
+                  if (body_size > 4) then
+                    request_handle:logInfo("body_size is bigger than 4")
+                    request_handle:respond({ [":status"] = "413" })
+                  else
+                    print("good size")
+                  end
+                  request_handle:headers():add("request-body-size", tostring(body_size))
+                end
+                function envoy_on_response(response_handle)
+                  body_size = response_handle:body():length()
+                  response_handle:headers():add("response-body-size", tostring(body_size))
+                end

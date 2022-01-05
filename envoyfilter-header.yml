@@ -1,0 +1,34 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: EnvoyFilter
+metadata:
+  name: filter-header
+  namespace: istio-system
+spec:
+  workloadSelector:
+    labels:
+      istio: ingressgateway
+  configPatches:
+    - applyTo: HTTP_FILTER
+      match:
+        context: GATEWAY
+        listener:
+          filterChain:
+            filter:
+              name: "envoy.filters.network.http_connection_manager"
+              subFilter:
+                name: "envoy.filters.http.router"
+      patch:
+        operation: INSERT_BEFORE
+        value: # lua filter specification
+          name: envoy.lua
+          typed_config:
+              "@type": "type.googleapis.com/envoy.extensions.filters.http.lua.v3.Lua"
+              inlineCode: |
+                function envoy_on_request(request_handle)
+                  request_handle:logInfo("Aidan Path: "..request_handle:headers():get(":path"))
+                  request_handle:headers():add("x-aidan-header", "hi")
+                end
+                function envoy_on_response(response_handle)
+                  -- Wait for the entire response body and add a response header with the body size.
+                  response_handle:headers():add("x-response-header", "bye")
+                end
